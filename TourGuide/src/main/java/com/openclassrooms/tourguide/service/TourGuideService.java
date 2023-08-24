@@ -15,6 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -144,6 +147,32 @@ public class TourGuideService {
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
+	}
+
+
+	/**
+	 * Method which uses ExecutorService to ameliorate performance to track user location of several users.
+	 * @param userList
+	 * @return Map<UUID, VisitedLocation>
+	 */
+
+	public Map<UUID, VisitedLocation> trackAllUsersLocation(List<User> userList) {
+		ExecutorService service = Executors.newFixedThreadPool(30);
+		Map<UUID, VisitedLocation> userVisitedLocationMap = new HashMap<>();
+		try {
+			for (User user : userList) {
+				service.execute(() -> {
+					VisitedLocation visitedLocation = trackUserLocation(user);
+					userVisitedLocationMap.put(user.getUserId(), visitedLocation);
+				});
+			}
+			service.shutdown();
+			service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			System.out.println("All threads have completed");
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		return userVisitedLocationMap;
 	}
 
 	/**
