@@ -43,6 +43,9 @@ public class RewardsService {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
+	/**
+	 * This method is used to get List of all attractions.
+	 */
 	private void getAttractions() {
 		attractions = gpsUtil.getAttractions();
 	}
@@ -50,15 +53,18 @@ public class RewardsService {
 	public User calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 
-		for(VisitedLocation visitedLocation : userLocations) {
+
+		for (int i = 0; i < userLocations.size(); i++) {
 			for(Attraction attraction : attractions) {
 				if(user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
+					VisitedLocation visitedLocation = userLocations.get(i);
 					if(nearAttraction(visitedLocation, attraction)) {
 						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
 		}
+
 		return user;
 	}
 
@@ -67,13 +73,15 @@ public class RewardsService {
 
 		ExecutorService service = Executors.newFixedThreadPool(50);
 		try {
-			for (User user : userList) {
+
+			userList.forEach(user -> {
 				service.execute(() -> {
 					if (user != null) {
 						listToReturn.add(calculateRewards(user));
 					}
 				});
-			}
+			});
+
 			service.shutdown();
 			service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		} catch (InterruptedException e) {
