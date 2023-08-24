@@ -1,6 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
@@ -22,10 +26,13 @@ public class RewardsService {
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardsCentral;
+	private List<Attraction> attractions;
 	
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsCentral = rewardCentral;
+
+		getAttractions();
 	}
 	
 	public void setProximityBuffer(int proximityBuffer) {
@@ -35,22 +42,54 @@ public class RewardsService {
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
-	
-	public void calculateRewards(User user) {
+
+	private void getAttractions() {
+		attractions = gpsUtil.getAttractions();
+	}
+
+	public User calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
-		
+
 		for(VisitedLocation visitedLocation : userLocations) {
 			for(Attraction attraction : attractions) {
-				if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+				if(user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
 					if(nearAttraction(visitedLocation, attraction)) {
 						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
 		}
+		return user;
 	}
-	
+
+	public List<User> calculateRewardsForAllUsers(List<User> userList) {
+		List<User> listToReturn = new ArrayList <>();
+
+		ExecutorService service = Executors.newFixedThreadPool(50);
+		try {
+			for (User user : userList) {
+				service.execute(() -> {
+					if (user != null) {
+						listToReturn.add(calculateRewards(user));
+					}
+				});
+			}
+			service.shutdown();
+			service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		return listToReturn;
+	}
+
+	/* TODO: Change usersLocation instantiation condition.
+
+	 */
+
+
+
+
+
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
