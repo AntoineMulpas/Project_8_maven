@@ -55,29 +55,72 @@ public class TourGuideService {
 		addShutDownHook();
 	}
 
+	/**
+	 * This method is used to get the reward concerning a specific user.
+	 * @param user
+	 * @return List<UserReward>
+	 */
+
 	public List<UserReward> getUserRewards(User user) {
 		return user.getUserRewards();
 	}
 
+
+	/**
+	 * This method is used to get the current user location.
+	 * If user has already a visited location, then the method returns it.
+	 * Otherwise, it tracks the current user position and returns it.
+	 * @param user
+	 * @return VisitedLocation
+	 */
 	public VisitedLocation getUserLocation(User user) {
 		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
 				: trackUserLocation(user);
 		return visitedLocation;
 	}
 
+	/**
+	 * This method is user for testing purpose. It returns a specific user
+	 * from username.
+	 * Note: the user is randomly generated.
+	 * @param userName
+	 * @return User
+	 */
+
 	public User getUser(String userName) {
 		return internalUserMap.get(userName);
 	}
 
+	/**
+	 * This method is used for testing purpose, it returns a List of all users.
+	 * Note: the List of all users is generated randomly.
+	 * @return List<User>
+	 */
+
 	public List<User> getAllUsers() {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
+
+
+	/**
+	 * This method is user to add a new user.
+	 * Note: the user is added to a Map which is used to testing purpose.
+	 * @param user
+	 */
 
 	public void addUser(User user) {
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
 		}
 	}
+
+	/**
+	 * This method is used to set the list of provider a user is associated with.
+	 * According to several parameters (such as numbers of children, adults, trip duration and already cumulated reward points)
+	 * the method is setting a list of Provider to a user.
+	 * @param user
+	 * @return List<Provider>
+	 */
 
 	public List<Provider> getTripDeals(User user) {
 		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
@@ -88,12 +131,27 @@ public class TourGuideService {
 		return providers;
 	}
 
+	/**
+	 * This method is used to track the user location.
+	 * It also calls the 'calculateRewards' method from 'rewardsService' to calculte the reward associated
+	 * with the current user.
+	 * @param user
+	 * @return VisitedLocation
+	 */
+
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
 	}
+
+	/**
+	 * This method is used to get the attraction close to the user location
+	 * (represented by the object VisitedLocation).
+	 * @param visitedLocation
+	 * @return List<Attraction>
+	 */
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 		List<Attraction> nearbyAttractions = new ArrayList<>();
@@ -105,6 +163,10 @@ public class TourGuideService {
 
 		return nearbyAttractions;
 	}
+
+	/**
+	 * This method is used to shut down the tracker.
+	 */
 
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
