@@ -1,11 +1,13 @@
 package com.openclassrooms.tourguide.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.openclassrooms.tourguide.models.ClosestAttractionsDTO;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -53,7 +55,6 @@ public class RewardsService {
 	public User calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 
-
 		for (int i = 0; i < userLocations.size(); i++) {
 			for(Attraction attraction : attractions) {
 				if(user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
@@ -90,20 +91,58 @@ public class RewardsService {
 		return listToReturn;
 	}
 
-	/* TODO: Change usersLocation instantiation condition.
 
-	 */
+	//TODO: Resume to implement method to sort attractions by proximity
+
+	public List<ClosestAttractionsDTO> getTopFiveNearestAttraction(User user, Location location) {
+		Map <Double, Attraction> map = new TreeMap<>(Comparator.naturalOrder());
+		List<Attraction> topFive = new ArrayList<>();
+
+		attractions.forEach(attraction -> {
+			double distance = getDistance(attraction, location);
+			map.put(distance, attraction);
+		});
+
+		int count = 0;
+		for (Map.Entry<Double, Attraction> entry : map.entrySet()) {
+			if (count >= 5) {
+				break;
+			}
+			topFive.add(entry.getValue());
+			count++;
+		}
+
+
+		return closestAttractionsDTOS(user, topFive,location);
+	}
+
+
+	private List<ClosestAttractionsDTO> closestAttractionsDTOS(User user,List<Attraction> attractions, Location location) {
+		List<ClosestAttractionsDTO> closestAttractionsDTOS = new ArrayList<>();
+		for (Attraction attraction : attractions) {
+			closestAttractionsDTOS.add( new ClosestAttractionsDTO(
+					attraction.attractionName,
+					attraction.longitude,
+					attraction.latitude,
+					location.longitude,
+					location.latitude,
+					getDistance(attraction, location),
+					user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum()
+			));
+		}
+		return closestAttractionsDTOS;
+	}
 
 
 
 
 
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return !(getDistance(attraction, location) > attractionProximityRange);
+		return (getDistance(attraction, location) < attractionProximityRange);
 	}
 	
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		return !(getDistance(attraction, visitedLocation.location) > proximityBuffer);
+		return (getDistance(attraction, visitedLocation.location) < proximityBuffer);
 	}
 	
 	private int getRewardPoints(Attraction attraction, User user) {
