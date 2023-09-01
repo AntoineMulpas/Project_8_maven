@@ -1,6 +1,7 @@
 package com.openclassrooms.tourguide.service;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.models.ClosestAttractionsDTO;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
 import com.openclassrooms.tourguide.user.UserReward;
@@ -182,16 +183,10 @@ public class TourGuideService {
 	 * @return List<Attraction>
 	 */
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
-		}
-
-		return nearbyAttractions;
+	public List<ClosestAttractionsDTO> getNearByAttractions(User user, VisitedLocation visitedLocation) {
+		return rewardsService.getTopFiveNearestAttraction(user, visitedLocation.location);
 	}
+
 
 	/**
 	 * This method is used to shut down the tracker.
