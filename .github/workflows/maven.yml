@@ -44,10 +44,5 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file ./TourGuide/pom.xml -DskipTests
-    - name: mkdir target && cp target/*jar-with-dependencies.jar target
-    - uses: actions/upload-artifact@v3
-      with:
-        name: dist-without-markdown
-        path: target
-      
+ 
       
