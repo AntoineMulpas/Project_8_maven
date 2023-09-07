@@ -43,5 +43,5 @@ jobs:
       with:
         context: .
         push: true
-        tags: tourguide:latest
+        tags: antoinemulpas/tourguide:latest
    
