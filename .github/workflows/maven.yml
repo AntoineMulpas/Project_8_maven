@@ -29,4 +29,11 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file ./TourGuide/pom.xml
+    - name: Publish to Docker Hub
+      uses: docker/build-push-action@v1
+      with:
+       username: ${{ secrets.DOCKERHUB_USERNAME }}
+       password: ${{ secrets.DOCKERHUB_PASSWORD }}
+       repository: dockerHubUser/dockerHubRepository
+       tags: ${{github.run_number}}
 
