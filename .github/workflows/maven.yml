@@ -44,5 +44,12 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file ./TourGuide/pom.xml -DskipTests
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-without-markdown
+        path: |
+          dist
+            dist/**/*.md  
  
       
