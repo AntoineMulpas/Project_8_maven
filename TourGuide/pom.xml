@@ -59,18 +59,10 @@
 			<version>1.18.28</version>
 			<scope>provided</scope>
 		</dependency>
-
-
-
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+
 	</build>
 
 </project>
