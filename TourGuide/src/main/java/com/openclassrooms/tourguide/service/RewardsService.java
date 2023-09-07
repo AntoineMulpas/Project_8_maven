@@ -1,22 +1,19 @@
 package com.openclassrooms.tourguide.service;
 
+import com.openclassrooms.tourguide.gpsUtil.GpsUtil;
+import com.openclassrooms.tourguide.gpsUtil.location.Attraction;
+import com.openclassrooms.tourguide.gpsUtil.location.Location;
+import com.openclassrooms.tourguide.gpsUtil.location.VisitedLocation;
+import com.openclassrooms.tourguide.models.ClosestAttractionsDTO;
+import com.openclassrooms.tourguide.rewardCentral.RewardCentral;
+import com.openclassrooms.tourguide.user.User;
+import com.openclassrooms.tourguide.user.UserReward;
+import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import com.openclassrooms.tourguide.models.ClosestAttractionsDTO;
-import org.springframework.stereotype.Service;
-
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
-import rewardCentral.RewardCentral;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
 
 @Service
 public class RewardsService {
@@ -25,10 +22,10 @@ public class RewardsService {
 	// proximity in miles
     private final int defaultProximityBuffer = 10;
 	private       int proximityBuffer        = defaultProximityBuffer;
-	private final int     attractionProximityRange = 200;
-	private final GpsUtil gpsUtil;
-	private final RewardCentral rewardsCentral;
-	private List<Attraction> attractions;
+	private final int           attractionProximityRange = 200;
+	private final GpsUtil          gpsUtil;
+	private final RewardCentral    rewardsCentral;
+	private       List<Attraction> attractions;
 	
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;

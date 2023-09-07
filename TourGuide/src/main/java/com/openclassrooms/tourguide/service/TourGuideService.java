@@ -1,46 +1,35 @@
 package com.openclassrooms.tourguide.service;
 
+import com.openclassrooms.tourguide.gpsUtil.GpsUtil;
+import com.openclassrooms.tourguide.gpsUtil.location.Location;
+import com.openclassrooms.tourguide.gpsUtil.location.VisitedLocation;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.models.ClosestAttractionsDTO;
 import com.openclassrooms.tourguide.tracker.Tracker;
+import com.openclassrooms.tourguide.tripPricer.Provider;
+import com.openclassrooms.tourguide.tripPricer.TripPricer;
 import com.openclassrooms.tourguide.user.User;
 import com.openclassrooms.tourguide.user.UserReward;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
-
-import tripPricer.Provider;
-import tripPricer.TripPricer;
-
 @Service
 public class TourGuideService {
-	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
-	private final GpsUtil gpsUtil;
+	private       Logger         logger = LoggerFactory.getLogger(TourGuideService.class);
+	private final GpsUtil        gpsUtil;
 	private final RewardsService rewardsService;
-	private final TripPricer tripPricer = new TripPricer();
-	public final Tracker tracker;
+	private final TripPricer     tripPricer = new TripPricer();
+	public final  Tracker        tracker;
 	boolean testMode = true;
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
