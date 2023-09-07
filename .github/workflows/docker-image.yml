@@ -7,12 +7,14 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: eclipse-temurin:17-jdk
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - uses: actions/checkout@v2
+      - name: Build and test
+        run: ./mvnw clean package
+      - name: Build Docker image
+        run: |
+          docker build -t app.jar .
+          docker tag my-spring-boot-app my-docker-registry/app.jar
+          docker push my-docker-registry/app.jar
