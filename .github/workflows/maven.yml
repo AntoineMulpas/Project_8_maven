@@ -28,17 +28,20 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file ./TourGuide/pom.xml
-    - name: Build & Push to DockerHub
-      uses: actions/checkout@v3
+      run: |
+        mvn -B install --file ./TourGuide/pom.xml
+        mkdir staging && cp TourGuide/target/*.jar staging
+
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
     - name: Docker Build and Push to DockerHub
       uses: docker/build-push-action@v3
       with:
         context: .
         push: true
-        tags: antoinem/tourguide:latest
+        tags: antoinemulpas/tourguide:latest
+   
