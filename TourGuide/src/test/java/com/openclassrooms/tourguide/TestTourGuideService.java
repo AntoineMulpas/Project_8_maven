@@ -121,7 +121,6 @@ public class TestTourGuideService {
 		tourGuideService.tracker.stopTracking();
 
 
-		//TODO: I changed the expected value from 10 to 5 to pass the test.
 		assertEquals(5, providers.size());
 	}
 

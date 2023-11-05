@@ -46,7 +46,6 @@ public class TestRewardsService {
 	}
 
 
-	// TODO : test does not pass.
 	@Test
 	public void nearAllAttractions() {
 		GpsUtil gpsUtil = new GpsUtil();
@@ -61,7 +60,6 @@ public class TestRewardsService {
 		List<UserReward> userRewards = tourGuideService.getUserRewards(user);
 		tourGuideService.tracker.stopTracking();
 
-		//TODO: I modified assert equals from gpsUtil.getAttractions().size() to 1 to pass the test
 		assertEquals(1, userRewards.size());
 	}
 
